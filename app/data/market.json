@@ -1,0 +1,37 @@
+{
+  "date": "2026-04-22",
+  "indices": {
+    "NIFTY50":   {"symbol": "NIFTY50",   "previous_close": 22450.30, "close": 22180.55, "change_pct": -1.20},
+    "SENSEX":    {"symbol": "SENSEX",    "previous_close": 73820.10, "close": 72960.40, "change_pct": -1.17},
+    "BANKNIFTY": {"symbol": "BANKNIFTY", "previous_close": 48720.80, "close": 47392.15, "change_pct": -2.73},
+    "NIFTYIT":   {"symbol": "NIFTYIT",   "previous_close": 34110.20, "close": 34790.85, "change_pct":  2.00},
+    "NIFTYFMCG": {"symbol": "NIFTYFMCG", "previous_close": 56220.40, "close": 56445.10, "change_pct":  0.40},
+    "NIFTYAUTO": {"symbol": "NIFTYAUTO", "previous_close": 21810.50, "close": 21438.20, "change_pct": -1.71},
+    "NIFTYPHARMA":{"symbol": "NIFTYPHARMA","previous_close": 18420.60,"close": 18752.40, "change_pct":  1.80},
+    "NIFTYENERGY":{"symbol": "NIFTYENERGY","previous_close": 39420.10,"close": 39734.50, "change_pct":  0.80}
+  },
+  "stocks": {
+    "HDFCBANK":   {"symbol": "HDFCBANK",   "sector": "Banking", "previous_close": 1620.00, "close": 1565.40, "change_pct": -3.37},
+    "ICICIBANK":  {"symbol": "ICICIBANK",  "sector": "Banking", "previous_close": 1080.50, "close": 1052.20, "change_pct": -2.62},
+    "SBIN":       {"symbol": "SBIN",       "sector": "Banking", "previous_close":  785.30, "close":  761.10, "change_pct": -3.08},
+    "AXISBANK":   {"symbol": "AXISBANK",   "sector": "Banking", "previous_close": 1110.20, "close": 1083.40, "change_pct": -2.41},
+    "TCS":        {"symbol": "TCS",        "sector": "IT",      "previous_close": 3850.60, "close": 3982.10, "change_pct":  3.41},
+    "INFY":       {"symbol": "INFY",       "sector": "IT",      "previous_close": 1585.40, "close": 1620.25, "change_pct":  2.20},
+    "WIPRO":      {"symbol": "WIPRO",      "sector": "IT",      "previous_close":  478.20, "close":  483.80, "change_pct":  1.17},
+    "RELIANCE":   {"symbol": "RELIANCE",   "sector": "Energy",  "previous_close": 2920.40, "close": 2966.10, "change_pct":  1.56},
+    "ONGC":       {"symbol": "ONGC",       "sector": "Energy",  "previous_close":  274.50, "close":  278.40, "change_pct":  1.42},
+    "SUNPHARMA":  {"symbol": "SUNPHARMA",  "sector": "Pharma",  "previous_close": 1620.30, "close": 1685.90, "change_pct":  4.05},
+    "CIPLA":      {"symbol": "CIPLA",      "sector": "Pharma",  "previous_close": 1490.80, "close": 1518.20, "change_pct":  1.84},
+    "HINDUNILVR": {"symbol": "HINDUNILVR", "sector": "FMCG",    "previous_close": 2360.10, "close": 2378.70, "change_pct":  0.79},
+    "ITC":        {"symbol": "ITC",        "sector": "FMCG",    "previous_close":  432.50, "close":  430.90, "change_pct": -0.37},
+    "MARUTI":     {"symbol": "MARUTI",     "sector": "Auto",    "previous_close":12510.40, "close":12235.20, "change_pct": -2.20},
+    "TATAMOTORS": {"symbol": "TATAMOTORS", "sector": "Auto",    "previous_close":  980.20, "close":  958.30, "change_pct": -2.23}
+  },
+  "mutual_funds": {
+    "PPFAS_FLEXI":    {"symbol": "PPFAS_FLEXI",    "asset_type": "Equity-Flexicap", "previous_nav": 78.50, "nav": 77.62, "change_pct": -1.12},
+    "AXIS_BLUECHIP":  {"symbol": "AXIS_BLUECHIP",  "asset_type": "Equity-Largecap", "previous_nav": 62.40, "nav": 61.55, "change_pct": -1.36},
+    "HDFC_SMALLCAP":  {"symbol": "HDFC_SMALLCAP",  "asset_type": "Equity-Smallcap", "previous_nav":125.80, "nav":123.20, "change_pct": -2.07},
+    "ICICI_LIQUID":   {"symbol": "ICICI_LIQUID",   "asset_type": "Debt-Liquid",     "previous_nav":352.10, "nav":352.18, "change_pct":  0.02},
+    "SBI_GILT":       {"symbol": "SBI_GILT",       "asset_type": "Debt-Gilt",       "previous_nav": 55.20, "nav": 55.35, "change_pct":  0.27}
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "date": "2026-04-22",
+  "articles": [
+    {
+      "id": "N001",
+      "headline": "RBI holds repo rate at 6.50%, signals extended hawkish stance on sticky core inflation",
+      "summary": "The Reserve Bank of India kept the repo rate unchanged for the seventh consecutive meeting and warned that rate cuts will be delayed into H2 FY27. Governor flagged persistent services inflation and firm crude as risks. Bond yields spiked 12bps; banking stocks sold off on compressed NIM outlook.",
+      "entities": {"sectors": ["Banking"], "stocks": ["HDFCBANK", "ICICIBANK", "SBIN", "AXISBANK"]},
+      "scope": "sector",
+      "sentiment": "negative"
+    },
+    {
+      "id": "N002",
+      "headline": "TCS beats Q4 estimates, raises FY27 revenue guidance on BFSI deal momentum",
+      "summary": "TCS reported revenue up 8.2% YoY and a record TCV of $13.2B, with management guiding for double-digit constant-currency growth in FY27. The stock gapped up at open; peers Infosys and Wipro also rallied in sympathy as analysts upgraded the sector.",
+      "entities": {"sectors": ["IT"], "stocks": ["TCS", "INFY", "WIPRO"]},
+      "scope": "sector",
+      "sentiment": "positive"
+    },
+    {
+      "id": "N003",
+      "headline": "Sun Pharma receives USFDA approval for flagship oncology drug; peak sales pegged at $900M",
+      "summary": "Sun Pharma announced USFDA approval for its targeted oncology therapy after a six-month review. Brokerages raised target prices by 15-20%, citing strong moat. The news also lifted sentiment across the pharma space.",
+      "entities": {"sectors": ["Pharma"], "stocks": ["SUNPHARMA", "CIPLA"]},
+      "scope": "stock",
+      "sentiment": "positive"
+    },
+    {
+      "id": "N004",
+      "headline": "Government hikes import duty on CBU passenger vehicles; domestic auto margins under pressure",
+      "summary": "The Ministry of Heavy Industries raised the import duty on completely-built-up passenger vehicles to 110%, but also hiked duties on imported auto components which domestic OEMs rely on. Street expects a 70-100bps margin hit for Maruti and Tata Motors in the near term.",
+      "entities": {"sectors": ["Auto"], "stocks": ["MARUTI", "TATAMOTORS"]},
+      "scope": "sector",
+      "sentiment": "negative"
+    },
+    {
+      "id": "N005",
+      "headline": "Brent crude spikes to $94 on fresh Middle East supply concerns",
+      "summary": "Brent jumped 3.8% overnight after reports of shipping disruption in the Strait of Hormuz. Upstream energy names rallied while broader equities wobbled on inflation-transmission fears.",
+      "entities": {"sectors": ["Energy"], "stocks": ["RELIANCE", "ONGC"]},
+      "scope": "sector",
+      "sentiment": "positive"
+    },
+    {
+      "id": "N006",
+      "headline": "FIIs pull $1.4B from Indian equities on DXY strength and rate-cut delay",
+      "summary": "Foreign institutional investors were net sellers for the fifth straight session as the dollar index strengthened past 106 and US 10Y yields moved to 4.65%. Large-cap private banks saw the heaviest outflows.",
+      "entities": {"sectors": [], "stocks": []},
+      "scope": "market",
+      "sentiment": "negative"
+    },
+    {
+      "id": "N007",
+      "headline": "HDFC Bank posts in-line Q4 but management guides for subdued loan growth in H1FY27",
+      "summary": "HDFC Bank's Q4 profit came in line with estimates at INR 16,820 Cr, but management's cautious commentary on deposit costs and moderation in loan growth disappointed investors. Despite the broadly 'in-line' print, the stock fell 3.4% as the street repriced growth expectations.",
+      "entities": {"sectors": ["Banking"], "stocks": ["HDFCBANK"]},
+      "scope": "stock",
+      "sentiment": "neutral"
+    },
+    {
+      "id": "N008",
+      "headline": "Budget incentives for rural FMCG distribution continue to cushion the consumer staples basket",
+      "summary": "Rural distribution subsidies announced in the interim budget continue to support volume growth for HUL and ITC, with management reiterating a recovery in rural volumes. The basket outperformed on a negative tape.",
+      "entities": {"sectors": ["FMCG"], "stocks": ["HINDUNILVR", "ITC"]},
+      "scope": "sector",
+      "sentiment": "positive"
+    }
+  ]
+}
