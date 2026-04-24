@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: financial-advisor-agent
+    runtime: docker
+    plan: free
+    region: singapore
+    healthCheckPath: /_stcore/health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: BRIEFING_MODEL
+        value: gpt-4o-mini
+      - key: EVAL_MODEL
+        value: gpt-4o-mini
+      - key: GENERAL_QA_MODEL
+        value: gpt-4o-mini
+      - key: BRIEFING_TEMPERATURE
+        value: "0.2"
+      - key: EVAL_TEMPERATURE
+        value: "0.0"
+      - key: GENERAL_QA_TEMPERATURE
+        value: "0.4"
+      - key: ENV
+        value: prod
+      - key: LANGFUSE_PUBLIC_KEY
+        sync: false
+      - key: LANGFUSE_SECRET_KEY
+        sync: false
+      - key: LANGFUSE_HOST
+        value: https://us.cloud.langfuse.com

@@ -12,3 +12,6 @@ __pycache__/
 .DS_Store
 dist/
 build/
+
+# Recruiter's original brief + sample data — local reference only, not part of product
+assignment/

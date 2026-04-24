@@ -1,87 +1,88 @@
 from __future__ import annotations
 
-import json
-import re
 from typing import Any
 
-from openai import OpenAI
-
-from app.config import get_settings
+from app.analytics.portfolio import compact_movers
+from app.config import get_settings, require_openai_key
 from app.ingestion.news import compact_news
-from app.models import Briefing, MarketContext, NewsArticle, PortfolioAnalytics
-from app.observability.tracing import get_tracer
-from app.reasoning.prompts import (
-    REASONING_SYSTEM,
-    build_reasoning_user_prompt,
+from app.models import (
+    Briefing,
+    BriefingDraft,
+    CausalLink,
+    Conflict,
+    MarketContext,
+    NewsArticle,
+    PortfolioAnalytics,
 )
-
-_JSON_FENCE = re.compile(r"^```(?:json)?\s*|\s*```$", re.MULTILINE)
-
-
-def _extract_json(text: str) -> dict[str, Any]:
-    text = _JSON_FENCE.sub("", text).strip()
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError:
-        start = text.find("{")
-        end = text.rfind("}")
-        if start == -1 or end == -1 or end <= start:
-            raise
-        return json.loads(text[start : end + 1])
+from app.observability.tracing import logger, openai_client
+from app.reasoning.prompts import REASONING_SYSTEM, build_reasoning_user_prompt
 
 
 def _compact_market(market: MarketContext) -> dict[str, Any]:
     return {
         "date": market.date,
         "market_sentiment": market.market_sentiment,
-        "indices": [
-            {"symbol": i.symbol, "change_pct": i.change_pct} for i in market.indices
-        ],
+        "indices": [i.model_dump(include={"symbol", "change_pct"}) for i in market.indices],
         "sector_trends": [
-            {
-                "sector": s.sector,
-                "avg_change_pct": s.avg_change_pct,
-                "sentiment": s.sentiment,
-            }
+            s.model_dump(include={"sector", "avg_change_pct", "sentiment"})
             for s in market.sector_trends
         ],
     }
 
 
 def _compact_portfolio(analytics: PortfolioAnalytics) -> dict[str, Any]:
+    exp_fields = {"sector", "weight_pct"}
     return {
         "portfolio_name": analytics.portfolio_name,
         "day_pnl_pct": analytics.day_pnl_pct,
         "day_pnl_abs": analytics.day_pnl_abs,
         "overall_pnl_pct": analytics.overall_pnl_pct,
-        "sector_exposure": [
-            {"sector": s.sector, "weight_pct": s.weight_pct}
-            for s in analytics.sector_exposure
+        "sector_exposure": [s.model_dump(include=exp_fields) for s in analytics.sector_exposure],
+        "fund_category_exposure": [
+            s.model_dump(include=exp_fields) for s in analytics.fund_category_exposure
         ],
         "asset_type_exposure": analytics.asset_type_exposure,
         "risk_flags": [
-            {"kind": r.kind, "severity": r.severity, "message": r.message}
-            for r in analytics.risk_flags
+            r.model_dump(include={"kind", "severity", "message"}) for r in analytics.risk_flags
         ],
-        "top_contributors": [
-            {
-                "symbol": h.symbol,
-                "sector": h.sector,
-                "day_change_pct": h.day_change_pct,
-                "day_change_abs": h.day_change_abs,
-            }
-            for h in analytics.top_contributors
-        ],
-        "top_detractors": [
-            {
-                "symbol": h.symbol,
-                "sector": h.sector,
-                "day_change_pct": h.day_change_pct,
-                "day_change_abs": h.day_change_abs,
-            }
-            for h in analytics.top_detractors
-        ],
+        "top_contributors": compact_movers(analytics.top_contributors),
+        "top_detractors": compact_movers(analytics.top_detractors),
     }
+
+
+def _validate_links(
+    draft: BriefingDraft,
+    *,
+    valid_news_ids: set[str],
+    portfolio_symbols: set[str],
+) -> tuple[list[CausalLink], list[str]]:
+    kept: list[CausalLink] = []
+    drops: list[str] = []
+    for link in draft.causal_links:
+        if link.news_id not in valid_news_ids:
+            drops.append(f"news_id={link.news_id!r}: not in provided news")
+            continue
+        allowed = [s for s in link.stocks_affected if s in portfolio_symbols]
+        if not allowed:
+            drops.append(f"news_id={link.news_id!r}: no valid portfolio stocks cited")
+            continue
+        if allowed != link.stocks_affected:
+            link = link.model_copy(update={"stocks_affected": allowed})
+        kept.append(link)
+    return kept, drops
+
+
+def _derive_confidence(
+    kept_links: list[CausalLink],
+    analytics: PortfolioAnalytics,
+) -> float:
+    movers = list(analytics.top_contributors) + list(analytics.top_detractors)
+    if not movers:
+        return 1.0
+    cited = {s for link in kept_links for s in link.stocks_affected}
+    total = sum(abs(m.day_change_abs) for m in movers) or 1e-9
+    covered = sum(abs(m.day_change_abs) for m in movers if m.symbol in cited)
+    return max(0.0, min(1.0, covered / total))
 
 
 def generate_briefing(
@@ -89,59 +90,55 @@ def generate_briefing(
     market: MarketContext,
     analytics: PortfolioAnalytics,
     relevant_news: list[NewsArticle],
-    span,
+    detected_conflicts: list[Conflict],
 ) -> Briefing:
+    require_openai_key()
     settings = get_settings()
-    if not settings.openai_api_key:
-        raise RuntimeError(
-            "OPENAI_API_KEY is not set. Copy .env.example to .env and fill it in."
-        )
+    client = openai_client()
 
-    client = OpenAI(api_key=settings.openai_api_key)
-    tracer = get_tracer()
-
-    market_payload = _compact_market(market)
-    portfolio_payload = _compact_portfolio(analytics)
-    news_payload = compact_news(relevant_news)
+    valid_news_ids = [a.id for a in relevant_news]
+    portfolio_symbols = [h.symbol for h in analytics.holdings if h.type == "stock"]
 
     user_prompt = build_reasoning_user_prompt(
-        market_context=market_payload,
-        portfolio_analytics=portfolio_payload,
-        relevant_news=news_payload,
+        market_context=_compact_market(market),
+        portfolio_analytics=_compact_portfolio(analytics),
+        relevant_news=compact_news(relevant_news),
+        pre_detected_conflicts=detected_conflicts,
+        valid_news_ids=valid_news_ids,
+        portfolio_symbols=portfolio_symbols,
     )
 
-    resp = client.chat.completions.create(
-        model=settings.openai_model,
-        max_tokens=1600,
-        response_format={"type": "json_object"},
+    resp = client.chat.completions.parse(
+        model=settings.briefing_model,
+        temperature=settings.briefing_temperature,
+        max_completion_tokens=1600,
+        response_format=BriefingDraft,
         messages=[
             {"role": "system", "content": REASONING_SYSTEM},
             {"role": "user", "content": user_prompt},
         ],
     )
 
-    raw_text = resp.choices[0].message.content or ""
-    parsed = _extract_json(raw_text)
+    msg = resp.choices[0].message
+    if getattr(msg, "refusal", None):
+        raise RuntimeError(f"Briefing model refused: {msg.refusal}")
+    draft: BriefingDraft | None = msg.parsed
+    if draft is None:
+        raise RuntimeError("Briefing model returned no parsed output")
 
-    usage = {
-        "input_tokens": getattr(resp.usage, "prompt_tokens", None) if resp.usage else None,
-        "output_tokens": getattr(resp.usage, "completion_tokens", None) if resp.usage else None,
-    }
-    tracer.log_generation(
-        span,
-        name="reasoning.briefing",
-        model=settings.openai_model,
-        input={"system": REASONING_SYSTEM, "user": user_prompt},
-        output=raw_text,
-        usage=usage,
+    kept_links, drops = _validate_links(
+        draft,
+        valid_news_ids=set(valid_news_ids),
+        portfolio_symbols={h.symbol for h in analytics.holdings},
     )
+    if drops:
+        logger.warning("briefing_links_dropped | %s", drops)
 
-    briefing = Briefing(
-        headline=parsed.get("headline", "").strip() or "Portfolio update",
-        summary=parsed.get("summary", "").strip(),
-        causal_links=parsed.get("causal_links", []),
-        conflicts=parsed.get("conflicts", []),
-        confidence=float(parsed.get("confidence", 0.5)),
-        model=settings.openai_model,
+    return Briefing(
+        headline=draft.headline.strip() or "Portfolio update",
+        summary=draft.summary.strip(),
+        causal_links=kept_links,
+        conflicts=list(draft.conflicts),
+        confidence=round(_derive_confidence(kept_links, analytics), 3),
+        model=settings.briefing_model,
     )
-    return briefing
