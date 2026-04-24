@@ -6,9 +6,11 @@ programmatically, and uses an LLM to produce a **causal** briefing that links
 **News → Sector → Stock → Portfolio Impact** for a specific investor. It also answers
 general finance questions.
 
-> **Live demo:** _add deployed URL here after Render deploy_
+> **🔴 Live demo:** **https://financial-advisor-agent.onrender.com/**
+> (Hosted on Render free tier — if the first request hangs for ~60-90s, the container
+> is cold-starting from sleep. Wait it out once, subsequent requests are <500ms.)
 >
-> **Walkthrough video:** _add 2–3 min Loom/YouTube link here_
+> **🎥 Walkthrough video:** _add 2–3 min Loom/YouTube link here_
 
 ---
 
